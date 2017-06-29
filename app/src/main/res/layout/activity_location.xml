@@ -10,21 +10,39 @@
         android:layout_height="match_parent"
         android:layout_weight="1.0">
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/FindPlaceButton"
+            android:text="Search"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/address"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Title"/>
+            android:id="@+id/lat"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/lng"
+            android:visibility="invisible"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1.0">
+        android:layout_weight="0.25">
         <fragment
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/map"
-            android:name="com.skazerk.locationtodo.Map"/>
+            android:name="com.skazerk.locationtodo.Location.MySupportMapFragment"/>
     </LinearLayout>
 
 </LinearLayout>
