@@ -4,11 +4,14 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.*;
 import android.location.Location;
+import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +22,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.Api;
@@ -28,6 +32,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.skazerk.locationtodo.Main;
 import com.skazerk.locationtodo.R;
 
 import org.json.JSONArray;
@@ -119,20 +124,51 @@ public class MyLocationService extends Service {
             @Override
             public void run() {
                 boolean locationFound = false;
-                getCurrentLocation();
+                String locationFoundName = "";
+                for (int i = 0; i < locations.size(); i++) {
+                    getCurrentLocation();
 
-                builder = new NotificationCompat.Builder(MyLocationService.this)
-                        .setSmallIcon(R.drawable.ic_location_notification)
-                        .setContentText("Lat: " + locations.get(0).getLatitude()
-                                + ", Long: " + locations.get(0).getLongitude())
-                        .setContentTitle(locationNames.get(0));
+                    if (!locationFound) {
+                        float results[] = new float[1];
+                        Location.distanceBetween(currentLocation.getLatitude(),
+                                currentLocation.getLongitude(), locations.get(i).getLatitude(),
+                                locations.get(i).getLongitude(), results);
+                        if (results[0] <= 15.24) {
+                            builder = new NotificationCompat.Builder(MyLocationService.this)
+                                    .setSmallIcon(R.drawable.ic_location_notification)
+                                    .setContentText("Here is your list!")
+                                    .setContentTitle(locationNames.get(i));
 
-                int notificationId = 001;
+                            locationFoundName = locationNames.get(i);
 
-                NotificationManager notifyMgr =
-                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                            int notificationId = 1;
 
-                notifyMgr.notify(notificationId, builder.build());
+                            NotificationManager notifyMgr =
+                                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                            notifyMgr.notify(notificationId, builder.build());
+
+                            locationFound = true;
+                        }
+                    } else {
+                        int index = locationNames.indexOf(locationFoundName);
+                        float results[] = new float[1];
+                        Location.distanceBetween(currentLocation.getLatitude(),
+                                currentLocation.getLongitude(), locations.get(index).getLatitude(),
+                                locations.get(index).getLongitude(), results);
+
+                        if (results[0] > 15.24) {
+                            locationFound = false;
+                        }
+                    }
+                }
+
+                try {
+                    Thread.currentThread();
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         };
 
@@ -174,21 +210,18 @@ public class MyLocationService extends Service {
         }
 
         @Override
-        public void onProviderDisabled(String provider)
-        {
-            Log.e(TAG, "onProviderDisabled: " + provider);
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
         }
 
         @Override
-        public void onProviderEnabled(String provider)
-        {
-            Log.e(TAG, "onProviderEnabled: " + provider);
+        public void onProviderEnabled(String provider) {
+
         }
 
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-            Log.e(TAG, "onStatusChanged: " + provider);
+        public void onProviderDisabled(String provider) {
+
         }
     }
 
